@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: h2-data
+  namespace: batch-orchestrator
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: h2
+  namespace: batch-orchestrator
+  labels:
+    app: h2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: h2
+  template:
+    metadata:
+      labels:
+        app: h2
+    spec:
+      containers:
+        - name: h2
+          image: oscarfonts/h2:latest
+          ports:
+            - containerPort: 1521
+              name: tcp
+          volumeMounts:
+            - name: h2-data
+              mountPath: /opt/h2-data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+      volumes:
+        - name: h2-data
+          persistentVolumeClaim:
+            claimName: h2-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: h2
+  namespace: batch-orchestrator
+spec:
+  selector:
+    app: h2
+  ports:
+    - name: tcp
+      port: 9092
+      targetPort: 1521

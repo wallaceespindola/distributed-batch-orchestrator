@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Distributed Batch Orchestrator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Distributed Batch Orchestrator</h1>
+    <div class="api-base">
+      <label for="apiBaseInput">API base</label>
+      <input id="apiBaseInput" type="text" value="http://localhost:8080" spellcheck="false" />
+      <button id="apiBaseSave" type="button">Set</button>
+    </div>
+  </header>
+
+  <main class="grid">
+
+    <section class="panel" id="dataPanel">
+      <h2>Banking Data</h2>
+      <div class="row">
+        <label for="accountsInput">Accounts</label>
+        <input id="accountsInput" type="number" min="10" max="100" value="25" />
+        <button id="generateBtn" type="button">Generate Data</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-label">Accounts</span><span class="stat-value mono" id="statAccounts">-</span></div>
+        <div class="stat"><span class="stat-label">Transactions</span><span class="stat-value mono" id="statTransactions">-</span></div>
+      </div>
+    </section>
+
+    <section class="panel" id="actionsPanel">
+      <h2>Processing</h2>
+      <div class="row">
+        <button id="startBtn" type="button">Start Processing</button>
+      </div>
+      <div id="actionMsg" class="msg"></div>
+    </section>
+
+    <section class="panel" id="statusPanel">
+      <h2>Live Status</h2>
+      <div class="status-grid">
+        <div class="stat"><span class="stat-label">Job Execution ID</span><span class="stat-value mono" id="statusJobId">-</span></div>
+        <div class="stat"><span class="stat-label">Status</span><span class="stat-value" id="statusBadge"><span class="badge" id="statusBadgeInner">NONE</span></span></div>
+        <div class="stat"><span class="stat-label">Master</span><span class="stat-value mono" id="statusMaster">-</span></div>
+        <div class="stat"><span class="stat-label">Reports Generated</span><span class="stat-value mono" id="statusReports">-</span></div>
+        <div class="stat"><span class="stat-label">Started</span><span class="stat-value mono" id="statusStart">-</span></div>
+        <div class="stat"><span class="stat-label">Ended</span><span class="stat-value mono" id="statusEnd">-</span></div>
+      </div>
+    </section>
+
+    <section class="panel wide" id="partitionsPanel">
+      <h2>Partition Distribution</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Partition</th>
+            <th>Worker</th>
+            <th>Master</th>
+            <th>Accounts</th>
+            <th>Status</th>
+            <th>Started</th>
+            <th>Finished</th>
+          </tr>
+        </thead>
+        <tbody id="partitionsBody">
+          <tr><td colspan="7" class="empty">No run yet</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" id="clusterPanel">
+      <h2>Cluster</h2>
+      <div class="cluster-cards" id="clusterCards"></div>
+    </section>
+
+    <section class="panel wide" id="historyPanel">
+      <h2>History</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Job Execution ID</th>
+            <th>Status</th>
+            <th>Master</th>
+            <th>Partitions</th>
+            <th>Reports</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="5" class="empty">No history yet</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Distributed Batch Orchestrator Frontend &mdash; Wallace Espindola</span>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: distributed-batch-orchestrator
+  profiles:
+    default: local
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:./data/orchestrator;AUTO_SERVER=TRUE}
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  sql:
+    init:
+      mode: always
+  batch:
+    jdbc:
+      initialize-schema: never # schema.sql owns the (idempotent) batch metadata DDL
+    job:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+app:
+  instance-id: ${APP_INSTANCE_ID:instance-${server.port}}
+  mode: local
+  peers: ${APP_PEERS:http://localhost:8080,http://localhost:8081,http://localhost:8082,http://localhost:8083}
+  data:
+    default-accounts: ${APP_DATA_ACCOUNTS:25}
+    generate-on-startup: true
+  batch:
+    simulated-work-ms-per-account: 150
+    dispatch-timeout-seconds: 600
+
+logging:
+  level:
+    com.wallaceespindola.orchestrator: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: kubernetes
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka:9092}
+    consumer:
+      group-id: batch-workers
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: com.wallaceespindola.orchestrator.batch.kafka.JavaDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: com.wallaceespindola.orchestrator.batch.kafka.JavaSerializer
+
+app:
+  instance-id: ${APP_INSTANCE_ID:${HOSTNAME:instance-unknown}}
+  mode: kubernetes

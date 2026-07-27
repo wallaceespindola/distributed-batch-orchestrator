@@ -1,0 +1,130 @@
+# This compose file mirrors the "kubernetes mode" topology locally:
+# - kafka: single-node KRaft broker used for remote partitioning (consumer group)
+# - h2: shared TCP database server (all 4 app instances point at it)
+# - app-1..app-4: four identical containers built from the same image, one
+#   becomes Master at runtime (dynamic election) - no per-instance config
+#   other than APP_INSTANCE_ID / port mapping.
+# Equivalent to the k8s/ manifests, for local validation of the distributed
+# (non-local-mode) code path without a real cluster.
+
+services:
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: batch-orchestrator-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "9094:9092"
+    volumes:
+      - kafka-data:/bitnami/kafka
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - batch-net
+
+  h2:
+    image: oscarfonts/h2:latest
+    container_name: batch-orchestrator-h2
+    ports:
+      - "9092:1521"
+    volumes:
+      - h2-data:/opt/h2-data
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep 1521 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - batch-net
+
+  app-1:
+    build: .
+    container_name: batch-orchestrator-app-1
+    environment:
+      SPRING_PROFILES_ACTIVE: kubernetes
+      APP_INSTANCE_ID: app-1
+      KAFKA_BOOTSTRAP: kafka:9092
+      DB_URL: jdbc:h2:tcp://h2:1521//opt/h2-data/orchestrator
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      h2:
+        condition: service_healthy
+    networks:
+      - batch-net
+
+  app-2:
+    build: .
+    container_name: batch-orchestrator-app-2
+    environment:
+      SPRING_PROFILES_ACTIVE: kubernetes
+      APP_INSTANCE_ID: app-2
+      KAFKA_BOOTSTRAP: kafka:9092
+      DB_URL: jdbc:h2:tcp://h2:1521//opt/h2-data/orchestrator
+    ports:
+      - "8081:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      h2:
+        condition: service_healthy
+    networks:
+      - batch-net
+
+  app-3:
+    build: .
+    container_name: batch-orchestrator-app-3
+    environment:
+      SPRING_PROFILES_ACTIVE: kubernetes
+      APP_INSTANCE_ID: app-3
+      KAFKA_BOOTSTRAP: kafka:9092
+      DB_URL: jdbc:h2:tcp://h2:1521//opt/h2-data/orchestrator
+    ports:
+      - "8082:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      h2:
+        condition: service_healthy
+    networks:
+      - batch-net
+
+  app-4:
+    build: .
+    container_name: batch-orchestrator-app-4
+    environment:
+      SPRING_PROFILES_ACTIVE: kubernetes
+      APP_INSTANCE_ID: app-4
+      KAFKA_BOOTSTRAP: kafka:9092
+      DB_URL: jdbc:h2:tcp://h2:1521//opt/h2-data/orchestrator
+    ports:
+      - "8083:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      h2:
+        condition: service_healthy
+    networks:
+      - batch-net
+
+networks:
+  batch-net:
+    driver: bridge
+
+volumes:
+  kafka-data:
+  h2-data:

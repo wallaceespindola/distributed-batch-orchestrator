@@ -1,0 +1,16 @@
+target/
+data/
+logs/
+.pids/
+.git/
+.github/
+.gitignore
+frontend/node_modules/
+frontend/
+k8s/
+scripts/
+*.md
+.env
+.idea/
+.vscode/
+.DS_Store
