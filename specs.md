@@ -26,7 +26,7 @@ Use Round Robin or an alternative load balancing strategy. First receiver of the
 
 Frontend is a separate project using HTML, CSS, JavaScript, and NPM. 
 
-Frontend features: Generate random data, start processing, show live status, show partition distribution and worker activity, show completed and failed jobs, and history. 
+Frontend features: Generate random data, start processing, show live status, show partition distribution and worker activity, show completed and failed jobs, click to visualize generate file, and history. 
 
 Backend exposes REST controllers. Documentation must describe architecture, execution flow, master election, partitioning strategy, and deployment steps.
 
