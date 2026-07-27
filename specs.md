@@ -44,6 +44,10 @@ The project README must include an Author section identifying Wallace Espindola 
 
 Add a .gitignore and ignore AI common files, vscode and intellij ide files, windows and mac os files.
 
+Move specs.md to /docs/specs/PRD_Specs.md at the end.
+
+Add the main diagrams in /docs/diagrams, using puml and mermaid. Diagrams: Class, Components, Deployment, Sequence, Class model and ERD model.
+
 Add unit tests with a reasonable test coverage.
 
 Update readme.md and claude.md at the end of implementation.
