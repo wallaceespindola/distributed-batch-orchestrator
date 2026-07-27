@@ -30,6 +30,8 @@ Frontend features: Generate random data, start processing, show live status, sho
 
 Backend exposes REST controllers. Documentation must describe architecture, execution flow, master election, partitioning strategy, and deployment steps.
 
+Use best practices of design, coding and tests. Use java records where suitable, and lombok where applicable, to reduce boiler plate code.
+
 Author Information: Include an Author section in the README containing the author's full name, a short professional description, GitHub profile URL, and LinkedIn profile URL. 
 
 Keep these values easy to update and clearly separated from the technical documentation.
