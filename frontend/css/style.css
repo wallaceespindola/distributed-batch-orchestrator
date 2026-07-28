@@ -198,7 +198,8 @@ td.empty {
 
 .cluster-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  /* --cluster-cols is set from JS to the cluster size, so all instances sit on one row */
+  grid-template-columns: repeat(var(--cluster-cols, 6), minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -239,6 +240,12 @@ td.empty {
   color: var(--text-dim);
   font-size: 0.8rem;
   padding: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .cluster-cards {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
 }
 
 @media (max-width: 800px) {

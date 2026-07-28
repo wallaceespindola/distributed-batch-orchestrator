@@ -181,6 +181,7 @@ async function pollStatus() {
 
 function renderCluster(instances) {
   const cards = el('clusterCards');
+  cards.style.setProperty('--cluster-cols', CLUSTER_PORTS.length);
   let upCount = 0;
   cards.innerHTML = CLUSTER_PORTS.map((port) => {
     const found = instances.find((i) => i.port === port || (i.url || '').includes(String(port)));
