@@ -17,7 +17,7 @@ Serves on http://localhost:3000 via `http-server`.
 
 Default API base is `http://localhost:8080`; change it from the input field
 in the top bar at runtime (no rebuild needed). The cluster panel always
-probes ports 8080-8083 for the 4 backend instances.
+probes ports 8080-8085 for the 6 backend instances.
 
 ## Polling
 

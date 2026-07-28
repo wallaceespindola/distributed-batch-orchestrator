@@ -86,6 +86,15 @@ class LocalModeEndToEndTest {
     }
 
     @Test
+    void internalEndpointRejectsMissingToken() {
+        ResponseEntity<Map> response = rest.postForEntity("/internal/partitions/execute",
+                Map.of("jobExecutionId", 1, "partitionKey", "partition-0", "masterId", "x",
+                        "accountIds", List.of(1)),
+                Map.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     void infoAndHealthEndpointsRespond() {
         Map<String, Object> info = rest.getForObject("/api/info", Map.class);
         assertThat(info.get("instanceId")).isEqualTo("instance-e2e");

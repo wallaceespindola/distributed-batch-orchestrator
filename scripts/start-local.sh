@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Starts 4 identical instances of distributed-batch-orchestrator in local mode.
+# Starts 6 identical instances of distributed-batch-orchestrator in local mode.
 # Usage: scripts/start-local.sh [--build] [--with-frontend]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 JAR_PATH="${ROOT_DIR}/target/distributed-batch-orchestrator-1.0.0.jar"
-PORTS=(8080 8081 8082 8083)
+PORTS=(8080 8081 8082 8083 8084 8085)
 PID_DIR="${ROOT_DIR}/.pids"
 LOG_DIR="${ROOT_DIR}/logs"
 DATA_DIR="${ROOT_DIR}/data"

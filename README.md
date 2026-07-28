@@ -1,6 +1,6 @@
 # distributed-batch-orchestrator
 
-Distributed batch processing application built with **Java 21, Maven, Spring Boot 3.4 and Spring Batch**, backed by **H2**. Four identical instances process banking reports together: one instance is dynamically elected **Master** per run, the others act as **Workers**. A separate HTML/CSS/JavaScript frontend visualizes the whole thing live.
+Distributed batch processing application built with **Java 21, Maven, Spring Boot 3.4 and Spring Batch**, backed by **H2**. Six identical instances process banking reports together: one instance is dynamically elected **Master** per run, the others act as **Workers**. A separate HTML/CSS/JavaScript frontend visualizes the whole thing live.
 
 ![CI](https://github.com/wallaceespindola/distributed-batch-orchestrator/actions/workflows/ci.yml/badge.svg)
 
@@ -23,7 +23,7 @@ Distributed batch processing application built with **Java 21, Maven, Spring Boo
                                                 partition → worker attribution
 ```
 
-- **4 identical instances** — same artifact, same config. No instance-specific images.
+- **6 identical instances** — same artifact, same config. No instance-specific images. The elected Master is also a Worker: it takes a partition like everyone else.
 - **Dynamic master election** — the first instance to receive `POST /api/batch/start` acquires a **ShedLock** JDBC lock and becomes Master for that run. The lock guarantees a single active master (concurrent starts get HTTP 409) and is released when the job ends, so the role rotates between runs.
 - **Round-robin partitioning** — account ids are split evenly (`i % workers`) into one partition per healthy worker; bucket sizes differ by at most 1.
 - **Worker attribution** — each worker records its own `PARTITION_ASSIGNMENTS` row (partition key, worker id, master id, timing, status) and stamps every `ACCOUNT_REPORTS` row with its worker id. The status API surfaces both.
@@ -33,7 +33,7 @@ Distributed batch processing application built with **Java 21, Maven, Spring Boo
 
 | | Local mode (default) | Kubernetes mode (`kubernetes` profile) |
 |---|---|---|
-| Topology | 4 Spring Boot processes, ports 8080–8083 | 4 identical pods |
+| Topology | 6 Spring Boot processes, ports 8080–8085 | 6 identical pods |
 | Distribution | Master dispatches partitions to peers over **HTTP** (no Kafka) | **Kafka remote partitioning** (`spring-batch-integration`), consumer group `batch-workers` |
 | Batch job | `accountReportJob` → dispatch tasklet | `accountReportJob` → manager step + remote worker steps |
 | Completion tracking | HTTP responses | Manager polls the shared job repository |
@@ -59,7 +59,7 @@ Same codebase, mode selected purely by Spring profile.
 | GET | `/api/batch/status/{id}` | Same for a specific job execution |
 | GET | `/api/batch/history` | Past runs with master, partition and report counts |
 | GET | `/api/reports?jobExecutionId=N` | The generated per-account reports |
-| GET | `/api/cluster` | Live view of all 4 instances |
+| GET | `/api/cluster` | Live view of all 6 instances |
 | GET | `/api/info`, `/api/health` | Instance metadata / simple health (also `/actuator/health`) |
 
 All responses include a `timestamp` field.
@@ -69,7 +69,7 @@ All responses include a `timestamp` field.
 Prerequisites: Java 21+, Maven, Node.js (frontend only).
 
 ```bash
-# one command: builds if needed, resets ./data, starts 4 instances + frontend
+# one command: builds if needed, resets ./data, starts 6 instances + frontend
 ./scripts/start-local.sh --with-frontend      # Linux/macOS
 scripts\start-local.ps1 -WithFrontend         # Windows PowerShell
 
@@ -93,14 +93,14 @@ Makefile shortcuts: `make build`, `make test`, `make run`, `make run-all`, `make
 # build the image
 docker build -t distributed-batch-orchestrator:1.0.0 .
 
-# or try the same topology locally first (Kafka + H2 server + 4 app containers):
+# or try the same topology locally first (Kafka + H2 server + 6 app containers):
 docker compose up --build
 
-# deploy: namespace, H2 server, single-node Kafka (KRaft), app deployment with 4 identical replicas
+# deploy: namespace, H2 server, single-node Kafka (KRaft), app deployment with 6 identical replicas
 kubectl apply -k k8s/
 ```
 
-In this mode partitions travel over Kafka (`batch-partition-requests` topic, 8 partitions) and the 4 pods form the `batch-workers` consumer group. Pods are truly identical — instance identity comes from the pod name via the Downward API.
+In this mode partitions travel over Kafka (`batch-partition-requests` topic, 6 partitions — one per pod) and the 6 pods form the `batch-workers` consumer group. Pods are truly identical — instance identity comes from the pod name via the Downward API.
 
 ## Testing
 
@@ -108,7 +108,7 @@ In this mode partitions travel over Kafka (`batch-partition-requests` topic, 8 p
 mvn test
 ```
 
-18 tests: round-robin partitioning, data generation, report calculation + worker attribution (including failure marking), master election (lock won/lost/released), and a full end-to-end local-mode run through the REST API.
+22 tests: round-robin partitioning, data generation, report calculation + worker attribution (including failure marking), master election (lock won/lost/released), and a full end-to-end local-mode run through the REST API.
 
 ## Project layout
 

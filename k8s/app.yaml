@@ -6,7 +6,8 @@ metadata:
   labels:
     app: distributed-batch-orchestrator
 spec:
-  replicas: 4
+  # Must match KafkaBatchConfig.GRID_SIZE (one topic partition per pod).
+  replicas: 6
   selector:
     matchLabels:
       app: distributed-batch-orchestrator

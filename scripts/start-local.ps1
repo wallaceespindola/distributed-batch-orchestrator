@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Starts 4 identical instances of distributed-batch-orchestrator in local mode.
+  Starts 6 identical instances of distributed-batch-orchestrator in local mode.
 .PARAMETER Build
   Force a rebuild of the jar even if it already exists.
 .PARAMETER WithFrontend
@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir   = Resolve-Path (Join-Path $ScriptDir "..")
 $JarPath   = Join-Path $RootDir "target/distributed-batch-orchestrator-1.0.0.jar"
-$Ports     = @(8080, 8081, 8082, 8083)
+$Ports     = @(8080, 8081, 8082, 8083, 8084, 8085)
 $PidDir    = Join-Path $RootDir ".pids"
 $LogDir    = Join-Path $RootDir "logs"
 $DataDir   = Join-Path $RootDir "data"
@@ -106,13 +106,13 @@ Write-Log "instance-$($Ports[0]) healthy."
 Start-Sleep -Seconds 3
 
 # remaining instances can start together
-foreach ($port in $Ports[1..3]) {
+foreach ($port in $Ports[1..($Ports.Length - 1)]) {
     Start-Instance -Port $port -BatchInit "never"
 }
 
 Write-Log "Waiting for all instances to become healthy (up to 90s)..."
 $allHealthy = $true
-foreach ($port in $Ports[1..3]) {
+foreach ($port in $Ports[1..($Ports.Length - 1)]) {
     if (-not (Wait-Healthy -Port $port -TimeoutSec 90)) {
         Write-Log "instance-$port did NOT become healthy. Check $LogDir\instance-$port.log"
         $allHealthy = $false

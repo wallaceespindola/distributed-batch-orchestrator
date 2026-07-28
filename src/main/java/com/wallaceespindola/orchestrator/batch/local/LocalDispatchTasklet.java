@@ -65,6 +65,7 @@ public class LocalDispatchTasklet implements Tasklet {
                     log.info("Dispatching {} ({} accounts) to {}", request.partitionKey(),
                             request.accountIds().size(), worker.url());
                     client.post().uri(worker.url() + "/internal/partitions/execute")
+                            .header("X-Internal-Token", properties.internalToken())
                             .body(request)
                             .retrieve()
                             .toBodilessEntity();

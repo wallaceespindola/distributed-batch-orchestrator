@@ -38,12 +38,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class KafkaBatchConfig {
 
     public static final String REQUESTS_TOPIC = "batch-partition-requests";
-    private static final int GRID_SIZE = 4;
+    private static final int GRID_SIZE = 6;
 
     @Bean
     public NewTopic partitionRequestsTopic() {
-        // More topic partitions than pods so all 4 consumers get assignments.
-        return new NewTopic(REQUESTS_TOPIC, 8, (short) 1);
+        // One topic partition per pod (GRID_SIZE == replica count) so each consumer in
+        // the group owns exactly one.
+        return new NewTopic(REQUESTS_TOPIC, GRID_SIZE, (short) 1);
     }
 
     // ---- Manager (master) side ----
@@ -55,8 +56,14 @@ public class KafkaBatchConfig {
 
     @Bean
     public IntegrationFlow outboundPartitionFlow(KafkaTemplate<String, Object> kafkaTemplate) {
+        // Route each StepExecutionRequest to a distinct topic partition; Kafka's default
+        // sticky partitioner would otherwise batch all null-key requests onto one
+        // partition and a single worker would process everything.
         return IntegrationFlow.from(partitionRequestsOut())
-                .handle(Kafka.outboundChannelAdapter(kafkaTemplate).topic(REQUESTS_TOPIC))
+                .handle(Kafka.outboundChannelAdapter(kafkaTemplate)
+                        .topic(REQUESTS_TOPIC)
+                        .partitionIdExpression(new org.springframework.expression.spel.standard.SpelExpressionParser()
+                                .parseExpression("payload.stepExecutionId % " + GRID_SIZE)))
                 .get();
     }
 

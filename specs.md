@@ -4,11 +4,11 @@ Support Windows, Linux, and macOS. Include start and stop scripts for sh and ps1
 
 Support one-command startup for the full environment. Local mode. 
 
-Run4 identical Spring Boot instances. One instance becomes Master. Three become Workers. 
+Run 6 identical Spring Boot instances. One instance becomes Master. The Master also processes a partition, so all 6 act as Workers. 
 
 Use automatic Master election. Kubernetes mode. Simulate OpenShift deployment. 
 
-Four identical pods. One becomes Master, three become Workers. Include Docker and Kubernetes manifests. 
+Six identical pods. One becomes Master, all process partitions as Workers. Include Docker and Kubernetes manifests. 
 
 All instances are identical. Master role is dynamic and rotates between runs. 
 
@@ -20,7 +20,7 @@ Generate lists of 10 to 100 bank accounts + any configurable number with transac
 
 Batch processing reads from H2, splits work evenly across workers, generates one report per account, and tracks which worker handled each partition. 
 
-Kubernetes mode uses Kafka remote partitioning with a consumer group. Local mode simulates distribution across four instances without Kafka. 
+Kubernetes mode uses Kafka remote partitioning with a consumer group. Local mode simulates distribution across six instances without Kafka. 
 
 Use Round Robin or an alternative load balancing strategy. First receiver of the request becomes Master for that run. 
 

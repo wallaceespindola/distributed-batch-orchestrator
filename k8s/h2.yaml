@@ -30,6 +30,9 @@ spec:
       containers:
         - name: h2
           image: oscarfonts/h2:latest
+          env:
+            - name: H2_OPTIONS
+              value: "-ifNotExists"
           ports:
             - containerPort: 1521
               name: tcp

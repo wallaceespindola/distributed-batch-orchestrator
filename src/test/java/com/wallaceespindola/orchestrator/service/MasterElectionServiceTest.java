@@ -33,7 +33,7 @@ class MasterElectionServiceTest {
     @BeforeEach
     void setUp() {
         AppProperties properties = new AppProperties("instance-test", "local", null,
-                new AppProperties.Data(25, false), new AppProperties.Batch(0, 60));
+                new AppProperties.Data(25, false), new AppProperties.Batch(0, 60), "test-token");
         service = new MasterElectionService(lockHolder, jobLauncher, job, properties);
     }
 

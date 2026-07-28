@@ -10,7 +10,10 @@ public record AppProperties(
         @DefaultValue("local") String mode,
         @DefaultValue List<String> peers,
         @DefaultValue Data data,
-        @DefaultValue Batch batch) {
+        @DefaultValue Batch batch,
+        // Shared secret for instance-to-instance calls; override via APP_INTERNAL_TOKEN
+        // in any non-local deployment.
+        @DefaultValue("local-dev-internal-token") String internalToken) {
 
     public record Data(
             @DefaultValue("25") int defaultAccounts,

@@ -1,7 +1,7 @@
 // Distributed Batch Orchestrator - dashboard frontend (no framework, no build step)
 
 const DEFAULT_API_BASE = 'http://localhost:8080';
-const CLUSTER_PORTS = [8080, 8081, 8082, 8083];
+const CLUSTER_PORTS = [8080, 8081, 8082, 8083, 8084, 8085];
 const STATUS_POLL_MS = 2000;
 const HISTORY_POLL_MS = 5000;
 
@@ -128,6 +128,26 @@ function renderPartitions(partitions) {
     .join('');
 }
 
+// ponytail: all run metrics derive from the /api/batch/status payload already polled - no new endpoint
+function renderMetrics(body) {
+  const partitions = body?.partitions || [];
+  const done = partitions.filter((p) => p.status === 'COMPLETED').length;
+  const counts = partitions.map((p) => Number(p.accountCount) || 0);
+  const workers = new Set(partitions.map((p) => p.workerId).filter(Boolean));
+
+  const start = body?.startTime ? new Date(body.startTime).getTime() : NaN;
+  const end = body?.endTime ? new Date(body.endTime).getTime() : Date.now();
+  const seconds = Number.isNaN(start) ? NaN : (end - start) / 1000;
+  const reports = Number(body?.reportsGenerated) || 0;
+
+  el('metricDuration').textContent = Number.isNaN(seconds) ? '-' : `${seconds.toFixed(1)}s`;
+  el('metricPartitions').textContent = partitions.length ? `${done} / ${partitions.length}` : '-';
+  el('metricWorkers').textContent = workers.size || '-';
+  el('metricSpread').textContent = counts.length ? `${Math.min(...counts)} - ${Math.max(...counts)}` : '-';
+  el('metricThroughput').textContent =
+    !Number.isNaN(seconds) && seconds > 0 && reports ? `${(reports / seconds).toFixed(1)} rep/s` : '-';
+}
+
 async function pollStatus() {
   try {
     const { status, body } = await fetchJson(`${apiBase}/api/batch/status`);
@@ -139,6 +159,7 @@ async function pollStatus() {
       el('statusStart').textContent = '-';
       el('statusEnd').textContent = '-';
       renderPartitions([]);
+      renderMetrics(null);
       lastMasterId = null;
       return;
     }
@@ -149,19 +170,23 @@ async function pollStatus() {
     el('statusStart').textContent = fmtTime(body.startTime);
     el('statusEnd').textContent = fmtTime(body.endTime);
     renderPartitions(body.partitions);
+    renderMetrics(body);
     lastMasterId = body.masterId ?? null;
   } catch (e) {
     setBadge('NONE');
+    renderMetrics(null);
     lastMasterId = null;
   }
 }
 
 function renderCluster(instances) {
   const cards = el('clusterCards');
+  let upCount = 0;
   cards.innerHTML = CLUSTER_PORTS.map((port) => {
     const found = instances.find((i) => i.port === port || (i.url || '').includes(String(port)));
     const up = !!found?.up;
     const instanceId = found?.instanceId || '-';
+    if (up) upCount++;
     const isMaster = !!found && lastMasterId && found.instanceId === lastMasterId;
     return `
       <div class="cluster-card${isMaster ? ' master' : ''}">
@@ -173,6 +198,7 @@ function renderCluster(instances) {
         ${isMaster ? '<span class="badge started">MASTER</span>' : ''}
       </div>`;
   }).join('');
+  el('metricCluster').textContent = `${upCount} / ${CLUSTER_PORTS.length}`;
 }
 
 async function pollCluster() {

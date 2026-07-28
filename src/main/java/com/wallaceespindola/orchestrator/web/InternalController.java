@@ -20,11 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class InternalController {
 
+    public static final String TOKEN_HEADER = "X-Internal-Token";
+
     private final ReportService reportService;
     private final AppProperties properties;
 
     @PostMapping("/partitions/execute")
-    public Map<String, Object> execute(@RequestBody PartitionRequest request) {
+    public Map<String, Object> execute(
+            @org.springframework.web.bind.annotation.RequestHeader(value = TOKEN_HEADER,
+                    required = false) String token,
+            @RequestBody PartitionRequest request) {
+        if (!properties.internalToken().equals(token)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Invalid internal token");
+        }
         reportService.processPartition(request.jobExecutionId(), request.partitionKey(),
                 request.masterId(), request.accountIds());
         return Map.of(

@@ -11,7 +11,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Service;
 
 /**
- * Dynamic master election: all 4 instances are identical, and the first one to receive
+ * Dynamic master election: all 6 instances are identical, and the first one to receive
  * a processing request grabs the ShedLock lock and acts as Master for that run. The
  * lock guarantees a single active master; it is released by the job-completion
  * listener, so the master role naturally rotates between runs.

@@ -33,7 +33,7 @@ management:
 app:
   instance-id: ${APP_INSTANCE_ID:instance-${server.port}}
   mode: local
-  peers: ${APP_PEERS:http://localhost:8080,http://localhost:8081,http://localhost:8082,http://localhost:8083}
+  peers: ${APP_PEERS:http://localhost:8080,http://localhost:8081,http://localhost:8082,http://localhost:8083,http://localhost:8084,http://localhost:8085}
   data:
     default-accounts: ${APP_DATA_ACCOUNTS:25}
     generate-on-startup: true
@@ -50,6 +50,11 @@ spring:
   config:
     activate:
       on-profile: kubernetes
+  sql:
+    init:
+      # 6 identical pods run the idempotent schema.sql concurrently; losers of the
+      # CREATE ... IF NOT EXISTS race must not crash.
+      continue-on-error: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:kafka:9092}
     consumer:
