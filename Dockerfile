@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn -q -B package -DskipTests
 
 # ---- Stage 2: runtime ----
-FROM eclipse-temurin:21-jre AS runtime
+FROM eclipse-temurin:24-jre AS runtime
 
 # eclipse-temurin JRE images are Ubuntu-based and ship neither curl nor wget;
 # install curl for the HEALTHCHECK in a single layer.
