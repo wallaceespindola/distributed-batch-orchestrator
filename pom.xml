@@ -34,7 +34,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <shedlock.version>6.3.0</shedlock.version>
+        <shedlock.version>7.10.1</shedlock.version>
     </properties>
 
     <dependencies>
