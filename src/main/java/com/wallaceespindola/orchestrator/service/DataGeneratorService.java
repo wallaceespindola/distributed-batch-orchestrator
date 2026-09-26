@@ -43,7 +43,7 @@ public class DataGeneratorService {
     private final LockProvider lockProvider;
 
     /**
-     * Seeds the database on startup. All 4 identical instances race here, so a ShedLock
+     * Seeds the database on startup. All 6 identical instances race here, so a ShedLock
      * lock plus an emptiness check make sure only the first one generates data.
      */
     @EventListener(ApplicationReadyEvent.class)

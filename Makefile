@@ -8,10 +8,10 @@ build: ## Build the backend jar (mvn package, skip tests)
 test: ## Run backend unit/integration tests
 	mvn -q test
 
-run: ## Start the 4 local instances (scripts/start-local.sh)
+run: ## Start the 6 local instances (scripts/start-local.sh)
 	scripts/start-local.sh
 
-run-all: ## Start the 4 local instances plus the frontend
+run-all: ## Start the 6 local instances plus the frontend
 	scripts/start-local.sh --with-frontend
 
 stop: ## Stop all local instances (and frontend if running)
