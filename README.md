@@ -1,8 +1,15 @@
+![Java](https://cdn.icon-icons.com/icons2/2699/PNG/512/java_logo_icon_168609.png)
+
 # distributed-batch-orchestrator
 
 Distributed batch processing application built with **Java 21, Maven, Spring Boot 3.4 and Spring Batch**, backed by **H2**. Six identical instances process banking reports together: one instance is dynamically elected **Master** per run, the others act as **Workers**. A separate HTML/CSS/JavaScript frontend visualizes the whole thing live.
 
-![CI](https://github.com/wallaceespindola/distributed-batch-orchestrator/actions/workflows/ci.yml/badge.svg)
+![Apache 2.0 License](https://img.shields.io/badge/License-Apache2.0-orange)
+![Java](https://img.shields.io/badge/Built_with-Java21-blue)
+![Spring](https://img.shields.io/badge/Structured_by-SpringBoot-lemon)
+![Spring Batch](https://img.shields.io/badge/Processed_by-SpringBatch-green)
+![Maven](https://img.shields.io/badge/Powered_by-Maven-pink)
+[![CI](https://github.com/wallaceespindola/distributed-batch-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/wallaceespindola/distributed-batch-orchestrator/actions/workflows/ci.yml)
 
 ## Architecture
 
