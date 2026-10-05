@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Stage 1: builder ----
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM maven:3-eclipse-temurin-24 AS builder
 WORKDIR /build
 
 # Dependency layer caching: resolve deps before copying sources
